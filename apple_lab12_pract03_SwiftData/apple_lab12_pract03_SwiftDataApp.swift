@@ -1,32 +1,23 @@
-//
-//  apple_lab12_pract03_SwiftDataApp.swift
-//  apple_lab12_pract03_SwiftData
-//
-//  Created by Jaime Gomez on 1/6/25.
-//
-
 import SwiftUI
 import SwiftData
 
 @main
-struct apple_lab12_pract03_SwiftDataApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+struct LaboratorioDocentesApp: App {
+    private let almacenamiento = Result {
+        try ModelContainer(for: Docente.self, configurations: ModelConfiguration("Docentes"))
+    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            switch almacenamiento {
+            case .success(let contenedor):
+                ContentView()
+                    .modelContainer(contenedor)
+            case .failure(let error):
+                ContentUnavailableView("Teachers could not be loaded",
+                                       systemImage: "externaldrive.badge.exclamationmark",
+                                       description: Text(error.localizedDescription))
+            }
         }
-        .modelContainer(sharedModelContainer)
     }
 }
